@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "${fml_version_constraint}"
+license = "${license}"
+issueTrackerURL = "${issue_tracker}"
+[[mods]]
+modId = "${mod_id}"
+version = "${version}"
+displayName = "${mod_name}"
+displayURL = "${homepage}"
+logoFile = "${mod_id}.png"
+credits = "${credits}"
+authors = "${nf_authors}"
+description = "${description}"
+[[mixins]]
+config = "${mod_id}.neoforge.mixins.json"
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required" # can be: "required", "optional", "incompatible" or "discouraged"
+versionRange = "[${neoforge_version},)"
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${nf_minecraft_constraint}"
+ordering = "NONE"
+side = "BOTH"
