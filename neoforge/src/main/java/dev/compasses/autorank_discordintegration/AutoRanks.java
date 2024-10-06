@@ -40,6 +40,7 @@ public class AutoRanks {
                 GameProfile gameProfile = QUEUE.poll();
 
                 if (gameProfile != null) {
+                    AutoRanks.LOGGER.debug("Processing queue entry for: {}", gameProfile.getName());
                     assignRoles(gameProfile);
                 }
 
