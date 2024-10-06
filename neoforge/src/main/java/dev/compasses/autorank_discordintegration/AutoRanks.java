@@ -16,6 +16,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -54,10 +55,9 @@ public class AutoRanks {
     };
 
     public AutoRanks(IEventBus bus, ModContainer container) {
-        bus.addListener((ServerStartingEvent event) -> WORKER_THREAD.start());
-        bus.addListener((ServerStoppingEvent event) -> RUNNING = false);
-
-        bus.addListener(AutoRanks::registerCommands);
+        NeoForge.EVENT_BUS.addListener((ServerStartingEvent event) -> WORKER_THREAD.start());
+        NeoForge.EVENT_BUS.addListener((ServerStoppingEvent event) -> RUNNING = false);
+        NeoForge.EVENT_BUS.addListener(AutoRanks::registerCommands);
     }
 
     private static void registerCommands(RegisterCommandsEvent event) {
