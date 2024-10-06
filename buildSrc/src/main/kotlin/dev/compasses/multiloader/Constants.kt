@@ -6,7 +6,7 @@ object Constants {
     const val GROUP = "dev.compasses.autorank_discordintegration"
     const val MOD_ID = "autorank_discordintegration"
     const val MOD_NAME = "Auto Rank for Discord Integration"
-    const val MOD_VERSION = "1.1.4"
+    const val MOD_VERSION = "1.1.5"
     const val LICENSE = "PolyForm-Shield-1.0.0"
     const val DESCRIPTION = """Provides and takes away ranks when joining a Minecraft server based on discord ranks."""
 

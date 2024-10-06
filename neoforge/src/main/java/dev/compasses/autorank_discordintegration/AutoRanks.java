@@ -36,7 +36,6 @@ public class AutoRanks {
     public static boolean RUNNING = true;
     private static final Thread WORKER_THREAD = new Thread(() -> {
         while (RUNNING) {
-            AutoRanks.LOGGER.debug("Processing queue...");
             GameProfile gameProfile = QUEUE.poll();
 
             if (gameProfile != null) {
@@ -141,13 +140,14 @@ public class AutoRanks {
             ServerLifecycleHooks.getCurrentServer().executeBlocking(() -> {
                 for (Rank rank : ranksToRemove) {
                     rank.remove(gameProfile);
-                    AutoRanks.LOGGER.info("Removing {}({}) from {}({})", rank.getName(), rank.getId(), gameProfile.getName(), gameProfile.getId());
+                    AutoRanks.LOGGER.info("Removing {}({}) from {}({}).", rank.getName(), rank.getId(), gameProfile.getName(), gameProfile.getId());
                 }
 
                 for (Rank rank : ranksToAdd) {
                     rank.add(gameProfile);
-                    AutoRanks.LOGGER.info("Adding {}({}) to {}({})", rank.getName(), rank.getId(), gameProfile.getName(),gameProfile.getId());
+                    AutoRanks.LOGGER.info("Adding {}({}) to {}({}).", rank.getName(), rank.getId(), gameProfile.getName(),gameProfile.getId());
                 }
+                AutoRanks.LOGGER.debug("Done assigning roles for {}({}).", gameProfile.getName(),gameProfile.getId());
             });
         } catch (AssertionError error) {
             AutoRanks.LOGGER.error("Failed to get the discord user for {}: ", gameProfile.getName(), error);
