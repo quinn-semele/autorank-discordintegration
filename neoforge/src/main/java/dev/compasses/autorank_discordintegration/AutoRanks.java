@@ -47,7 +47,7 @@ public class AutoRanks {
                 }
 
                 try {
-                    wait(5000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     // NO-OP
                 }
