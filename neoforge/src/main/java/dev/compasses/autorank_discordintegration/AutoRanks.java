@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 @Mod(value = "autorank_discordintegration", dist = Dist.DEDICATED_SERVER)
 public class AutoRanks {
@@ -48,23 +49,27 @@ public class AutoRanks {
                 return;
             }
 
-            for (Rank rank : FTBRanksAPI.manager().getAddedRanks(gameProfile)) {
+            Set<Rank> addedRanks = Set.copyOf(FTBRanksAPI.manager().getAddedRanks(gameProfile));
+
+            for (Rank rank : addedRanks) {
                 String role = checks.inverse().get(rank);
                 Role actual = findRole(discordMember.getRoles(), role);
 
                 if (actual != null) {
-                    if (FTBRanksAPI.manager().getAddedRanks(gameProfile).contains(rank)) {
+                    if (addedRanks.contains(rank)) {
                         rank.remove(gameProfile);
                         AutoRanks.LOGGER.info("Removing {}({}) from {}({})", actual.getName(), actual.getId(), gameProfile.getName(), gameProfile.getId());
                     }
                 }
             }
 
+            addedRanks = Set.copyOf(FTBRanksAPI.manager().getAddedRanks(gameProfile));
+
             for (Role role : discordMember.getRoles()) {
                 Rank rank = checks.get(role.getId());
 
                 if (rank != null) {
-                    if (!FTBRanksAPI.manager().getAddedRanks(gameProfile).contains(rank)) {
+                    if (!addedRanks.contains(rank)) {
                         rank.add(gameProfile);
                         AutoRanks.LOGGER.info("Adding {}({}) from {}({})", role.getName(), role.getId(), gameProfile.getName(),gameProfile.getId());
                     }
