@@ -38,6 +38,7 @@ public class AutoRanks {
         @Override
         public void run() {
             while (RUNNING) {
+                AutoRanks.LOGGER.debug("Processing queue...");
                 GameProfile gameProfile = QUEUE.poll();
 
                 if (gameProfile != null) {
@@ -55,8 +56,14 @@ public class AutoRanks {
     };
 
     public AutoRanks(IEventBus bus, ModContainer container) {
-        NeoForge.EVENT_BUS.addListener((ServerStartingEvent event) -> WORKER_THREAD.start());
-        NeoForge.EVENT_BUS.addListener((ServerStoppingEvent event) -> RUNNING = false);
+        NeoForge.EVENT_BUS.addListener((ServerStartingEvent event) -> {
+            AutoRanks.LOGGER.debug("Starting worker thread");
+            WORKER_THREAD.start();
+        });
+        NeoForge.EVENT_BUS.addListener((ServerStoppingEvent event) -> {
+            AutoRanks.LOGGER.debug("Stopping worker thread");
+            RUNNING = false;
+        });
         NeoForge.EVENT_BUS.addListener(AutoRanks::registerCommands);
     }
 
@@ -77,6 +84,7 @@ public class AutoRanks {
             LinkManager.checkGlobalAPI(gameProfile.getId());
             if (LinkManager.isPlayerLinked(gameProfile.getId())) {
                 QUEUE.offer(gameProfile);
+                AutoRanks.LOGGER.debug("Adding {}({}) to the roll assignment queue.", gameProfile.getName(), gameProfile.getId());
             }
         }
     }
@@ -84,13 +92,20 @@ public class AutoRanks {
     public static void assignRoles(GameProfile gameProfile) {
         PlayerLink link = LinkManager.getLink(null, gameProfile.getId());
 
-        if (link == null) return;
+        if (link == null) {
+            AutoRanks.LOGGER.debug("Player {}({}) unlinked?", gameProfile.getName(), gameProfile.getId());
+            return;
+        }
 
         HashBiMap<String, Rank> checks = AutoRanksConfig.load();
 
-        if (checks.isEmpty()) return;
+        if (checks.isEmpty()) {
+            AutoRanks.LOGGER.info("Failed to load config / config is empty.");
+            return;
+        }
 
         try {
+            AutoRanks.LOGGER.info("Fetching discord member: {}.", link.discordID);
             Member discordMember = DiscordIntegration.INSTANCE.getMemberById(link.discordID);
 
             if (discordMember == null) {
@@ -123,7 +138,7 @@ public class AutoRanks {
                 }
             }
 
-            ServerLifecycleHooks.getCurrentServer().execute(() -> {
+            ServerLifecycleHooks.getCurrentServer().executeBlocking(() -> {
                 for (Rank rank : ranksToRemove) {
                     rank.remove(gameProfile);
                     AutoRanks.LOGGER.info("Removing {}({}) from {}({})", rank.getName(), rank.getId(), gameProfile.getName(), gameProfile.getId());
