@@ -34,26 +34,23 @@ public class AutoRanks {
     public static final Logger LOGGER = LoggerFactory.getLogger("AutoRank for DiscordIntegration");
     public static final ConcurrentLinkedQueue<GameProfile> QUEUE = new ConcurrentLinkedQueue<>();
     public static boolean RUNNING = true;
-    private static final Thread WORKER_THREAD = new Thread() {
-        @Override
-        public void run() {
-            while (RUNNING) {
-                AutoRanks.LOGGER.debug("Processing queue...");
-                GameProfile gameProfile = QUEUE.poll();
+    private static final Thread WORKER_THREAD = new Thread(() -> {
+        while (RUNNING) {
+            AutoRanks.LOGGER.debug("Processing queue...");
+            GameProfile gameProfile = QUEUE.poll();
 
-                if (gameProfile != null) {
-                    AutoRanks.LOGGER.debug("Processing queue entry for: {}", gameProfile.getName());
-                    assignRoles(gameProfile);
-                }
+            if (gameProfile != null) {
+                AutoRanks.LOGGER.debug("Processing queue entry for: {}", gameProfile.getName());
+                assignRoles(gameProfile);
+            }
 
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    // NO-OP
-                }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // NO-OP
             }
         }
-    };
+    });
 
     public AutoRanks(IEventBus bus, ModContainer container) {
         NeoForge.EVENT_BUS.addListener((ServerStartingEvent event) -> {
@@ -83,7 +80,10 @@ public class AutoRanks {
         if (Configuration.instance().linking.whitelistMode && ServerLifecycleHooks.getCurrentServer().usesAuthentication()) {
             LinkManager.checkGlobalAPI(gameProfile.getId());
             if (LinkManager.isPlayerLinked(gameProfile.getId())) {
-                QUEUE.offer(gameProfile);
+                if (!QUEUE.contains(gameProfile)) {
+                    QUEUE.offer(gameProfile);
+                }
+
                 AutoRanks.LOGGER.debug("Adding {}({}) to the roll assignment queue.", gameProfile.getName(), gameProfile.getId());
             }
         }
@@ -121,7 +121,7 @@ public class AutoRanks {
                 String role = checks.inverse().get(rank);
                 Role actual = findRole(discordMember.getRoles(), role);
 
-                if (actual != null) {
+                if (actual == null) {
                     if (addedRanks.contains(rank)) {
                         ranksToRemove.add(rank);
                     }
@@ -146,7 +146,7 @@ public class AutoRanks {
 
                 for (Rank rank : ranksToAdd) {
                     rank.add(gameProfile);
-                    AutoRanks.LOGGER.info("Adding {}({}) from {}({})", rank.getName(), rank.getId(), gameProfile.getName(),gameProfile.getId());
+                    AutoRanks.LOGGER.info("Adding {}({}) to {}({})", rank.getName(), rank.getId(), gameProfile.getName(),gameProfile.getId());
                 }
             });
         } catch (AssertionError error) {
