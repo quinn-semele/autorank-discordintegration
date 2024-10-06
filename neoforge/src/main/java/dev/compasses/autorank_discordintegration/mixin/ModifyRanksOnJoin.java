@@ -1,16 +1,7 @@
 package dev.compasses.autorank_discordintegration.mixin;
 
-import com.google.common.collect.HashBiMap;
 import com.mojang.authlib.GameProfile;
-import de.erdbeerbaerlp.dcintegration.common.DiscordIntegration;
-import de.erdbeerbaerlp.dcintegration.common.storage.linking.LinkManager;
-import de.erdbeerbaerlp.dcintegration.common.storage.linking.PlayerLink;
 import dev.compasses.autorank_discordintegration.AutoRanks;
-import dev.compasses.autorank_discordintegration.AutoRanksConfig;
-import dev.ftb.mods.ftbranks.api.FTBRanksAPI;
-import dev.ftb.mods.ftbranks.api.Rank;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;

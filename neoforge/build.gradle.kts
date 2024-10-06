@@ -32,7 +32,7 @@ multiloader {
             requiresRepo("ErdbeerbaerLp's Maven", "https://repo.erdbeerbaerlp.de/repository/maven-public/", setOf("de.erdbeerbaerlp"))
 
             artifacts {
-                api("de.erdbeerbaerlp:dcintegration.common:3.0.0")
+                api("de.erdbeerbaerlp:dcintegration.common:3.0.7")
             }
         }
     }

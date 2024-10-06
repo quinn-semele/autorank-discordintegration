@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import de.erdbeerbaerlp.dcintegration.common.DiscordIntegration;
+import de.erdbeerbaerlp.dcintegration.common.WorkThread;
 import dev.ftb.mods.ftbranks.api.FTBRanksAPI;
 import dev.ftb.mods.ftbranks.api.Rank;
 import net.dv8tion.jda.api.entities.Role;
@@ -43,11 +44,28 @@ public class AutoRanksConfig {
                 JsonObject object = GSON.fromJson(reader, JsonObject.class);
 
                 if (object.has("roles") && object.get("roles") instanceof JsonObject rolesObj) {
-                    List<Role> discordRoles = DiscordIntegration.INSTANCE.getJDA().getRoles();
+                    WorkThread.JobHandleWithResult<List<Role>> discordRoles = WorkThread.executeJobWithReturn(() -> DiscordIntegration.INSTANCE.getJDA().getRoles());
+                    for (int i = 0; i < 5; i++) {
+                        if (discordRoles.isCompleted()) {
+                            break;
+                        } else {
+                            Thread.sleep(1000);
+                        }
+                    }
+
+                    if (!discordRoles.isCompleted()) {
+                        AutoRanks.LOGGER.error("Failed to fetch discord roles from JDA after 5 seconds, not loading config.");
+                        return HashBiMap.create();
+                    }
+
+                    if (discordRoles.getError().isPresent()) {
+                        AutoRanks.LOGGER.error("Failed to fetch discord roles from JDA, not loading config.", discordRoles.getError().get());
+                    }
+
                     Collection<Rank> ftbRanks = FTBRanksAPI.manager().getAllRanks();
 
                     rolesObj.entrySet().stream().map(it -> Map.entry(it.getKey(), it.getValue().getAsString())).forEach(entry -> {
-                        Role role = findDiscordRole(entry.getKey(), discordRoles);
+                        Role role = findDiscordRole(entry.getKey(), discordRoles.getResult().get());
 
                         if (role != null) {
                             Rank rank = findFTBRank(entry.getValue(), ftbRanks);
@@ -64,8 +82,10 @@ public class AutoRanksConfig {
                 } else {
                     AutoRanks.LOGGER.error("Expected a map of ");
                 }
-            } catch (IOException e) {
-                AutoRanks.LOGGER.error("Failed to read config.");
+            } catch (IOException error) {
+                AutoRanks.LOGGER.error("Failed to read config.", error);
+            } catch (InterruptedException error) {
+                AutoRanks.LOGGER.error("Failed to fetch discord roles from JDA, not loading config.", error);
             }
         } else {
             try (var writer = GSON.newJsonWriter(Files.newBufferedWriter(PATH, StandardCharsets.UTF_8))) {
@@ -73,8 +93,8 @@ public class AutoRanksConfig {
                 writer.name("_comment").value("Should be a mapping of discord role id/discord role name -> ftb rank id/ftb rank name");
                 writer.name("roles").beginObject().endObject();
                 writer.endObject();
-            } catch (IOException e) {
-                AutoRanks.LOGGER.error("Failed to create default config.");
+            } catch (IOException error) {
+                AutoRanks.LOGGER.error("Failed to create default config.", error);
             }
         }
 
