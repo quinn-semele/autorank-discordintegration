@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.Collection;
 import java.util.Map;
 
@@ -20,18 +19,10 @@ public class AutoRanksConfig {
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
     private static final Path PATH = FMLPaths.CONFIGDIR.get().resolve("autoranks_discordintegration.json");
     private static final HashBiMap<String, Rank> ROLES = HashBiMap.create();
-    private static FileTime LAST_MODIFIED = null;
+    public static boolean NEEDS_RELOAD = true;
 
     public static HashBiMap<String, Rank> load() {
-        FileTime lastModified;
-        try {
-            lastModified = Files.getLastModifiedTime(PATH);
-        } catch (IOException error) {
-            AutoRanks.LOGGER.error("Failed to check when the file was last modified, it may reload when each user joins.");
-            lastModified = null;
-        }
-
-        if (LAST_MODIFIED != null && LAST_MODIFIED.equals(lastModified)) {
+        if (!NEEDS_RELOAD) {
             return ROLES;
         }
 
@@ -72,7 +63,7 @@ public class AutoRanksConfig {
             }
         }
 
-        LAST_MODIFIED = lastModified;
+        NEEDS_RELOAD = false;
         return ROLES;
     }
 

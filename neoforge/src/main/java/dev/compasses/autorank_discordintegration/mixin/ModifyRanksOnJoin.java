@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.SocketAddress;
 
-@Mixin(value = PlayerList.class, priority = 995)
+@Mixin(PlayerList.class)
 public class ModifyRanksOnJoin {
     @Inject(
             method = "canPlayerLogin(Ljava/net/SocketAddress;Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/network/chat/Component;",
             at = @At("HEAD")
     )
     private void autorank_discordintegration$modifyRanks(SocketAddress socketAddress, GameProfile gameProfile, CallbackInfoReturnable<Component> cir) {
-        AutoRanks.assignRoles(gameProfile);
+        AutoRanks.queueRollAssignment(gameProfile);
     }
 }
