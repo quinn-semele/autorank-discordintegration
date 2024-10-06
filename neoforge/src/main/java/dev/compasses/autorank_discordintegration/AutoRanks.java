@@ -45,7 +45,10 @@ public class AutoRanks {
 
                 if (role != null) {
                     if (!discordMember.getRoles().contains(role)) {
-                        rank.remove(gameProfile);
+                        if (FTBRanksAPI.manager().getAddedRanks(gameProfile).contains(rank)) {
+                            rank.remove(gameProfile);
+                            AutoRanks.LOGGER.info("Removing {}({}) from {}({})", role.getName(), role.getId(), gameProfile.getName(), gameProfile.getId());
+                        }
                     }
                 }
             }
@@ -54,7 +57,10 @@ public class AutoRanks {
                 Rank rank = checks.get(role);
 
                 if (rank != null) {
-                    rank.add(gameProfile);
+                    if (!FTBRanksAPI.manager().getAddedRanks(gameProfile).contains(rank)) {
+                        rank.add(gameProfile);
+                        AutoRanks.LOGGER.info("Adding {}({}) from {}({})", role.getName(), role.getId(), gameProfile.getName(),gameProfile.getId());
+                    }
                 }
             }
         } catch (AssertionError error) {

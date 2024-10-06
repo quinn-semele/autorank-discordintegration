@@ -62,6 +62,8 @@ public class AutoRanksConfig {
                         AutoRanks.LOGGER.error("Failed to fetch discord roles from JDA, not loading config.", discordRoles.getError().get());
                     }
 
+                    AutoRanks.LOGGER.debug("Successfully fetched roles from discord.");
+
                     Collection<Rank> ftbRanks = FTBRanksAPI.manager().getAllRanks();
 
                     rolesObj.entrySet().stream().map(it -> Map.entry(it.getKey(), it.getValue().getAsString())).forEach(entry -> {
