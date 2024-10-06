@@ -10,6 +10,7 @@ import dev.ftb.mods.ftbranks.api.FTBRanksAPI;
 import dev.ftb.mods.ftbranks.api.Rank;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-@Mod("autorank_discordintegration")
+@Mod(value = "autorank_discordintegration", dist = Dist.DEDICATED_SERVER)
 public class AutoRanks {
     public static final Logger LOGGER = LoggerFactory.getLogger("AutoRank for DiscordIntegration");
 
