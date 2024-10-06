@@ -118,6 +118,12 @@ public class AutoRanks {
 
             for (Rank rank : addedRanks) {
                 String role = checks.inverse().get(rank);
+
+                if (role == null) {
+                    AutoRanks.LOGGER.info("Skipping rank {}, associated discord role is null?", rank.getId());
+                    continue;
+                }
+
                 Role actual = findRole(discordMember.getRoles(), role);
 
                 if (actual == null) {
