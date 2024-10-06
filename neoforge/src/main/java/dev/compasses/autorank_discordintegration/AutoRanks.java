@@ -3,6 +3,7 @@ package dev.compasses.autorank_discordintegration;
 import com.google.common.collect.HashBiMap;
 import com.mojang.authlib.GameProfile;
 import de.erdbeerbaerlp.dcintegration.common.DiscordIntegration;
+import de.erdbeerbaerlp.dcintegration.common.storage.Configuration;
 import de.erdbeerbaerlp.dcintegration.common.storage.linking.LinkManager;
 import de.erdbeerbaerlp.dcintegration.common.storage.linking.PlayerLink;
 import dev.ftb.mods.ftbranks.api.FTBRanksAPI;
@@ -26,6 +27,10 @@ public class AutoRanks {
     }
 
     public static void assignRoles(GameProfile gameProfile) {
+        if (!Configuration.instance().linking.enableLinking) {
+            return;
+        }
+
         PlayerLink link = LinkManager.getLink(null, gameProfile.getId());
 
         if (link == null) return;
