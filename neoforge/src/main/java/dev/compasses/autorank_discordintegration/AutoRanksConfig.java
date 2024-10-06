@@ -46,14 +46,14 @@ public class AutoRanksConfig {
                 if (object.has("roles") && object.get("roles") instanceof JsonObject rolesObj) {
                     WorkThread.JobHandleWithResult<List<Role>> discordRoles = WorkThread.executeJobWithReturn(() -> DiscordIntegration.INSTANCE.getJDA().getRoles());
                     for (int i = 0; i < 5; i++) {
-                        if (discordRoles.isCompleted()) {
+                        if (discordRoles.isCompleted() != null && discordRoles.isCompleted()) {
                             break;
                         } else {
                             Thread.sleep(1000);
                         }
                     }
 
-                    if (!discordRoles.isCompleted()) {
+                    if (discordRoles.isCompleted() == null || !discordRoles.isCompleted()) {
                         AutoRanks.LOGGER.error("Failed to fetch discord roles from JDA after 5 seconds, not loading config.");
                         return HashBiMap.create();
                     }
